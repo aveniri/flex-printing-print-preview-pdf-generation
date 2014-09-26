@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" width="230" height="50"
+  horizontalAlign="center" verticalAlign="middle" 
+  alpha=".7" cornerRadius="4" backgroundColor="#F4F4F4" 
+  dropShadowEnabled="true" dropShadowColor="#333333"
+  mouseDown="{this.startDrag()}" mouseUp="{this.stopDrag()}">
+	
+  <mx:ProgressBar id="progBar" mode="manual" label="0% Complete"/>
+</mx:Box>

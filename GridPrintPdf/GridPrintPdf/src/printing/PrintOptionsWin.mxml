@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 				  
+				  layout="absolute" height="270" width="410" 
+				  creationComplete="creationCompleteHandler(event)"
+				  verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+				  roundedBottomCorners="false" xmlns:printing="printing.*"
+				  showCloseButton="true" close="winCloseHandler(event)"
+				  borderThicknessLeft="0" borderThicknessRight="0" 
+				  borderColor="#cccccc" borderAlpha="1"
+				  highlightAlphas="[.5, 0]" headerColors="[#bbbbbb, #bbbbbb]"	
+				  footerColors="[#cccccc, #cccccc]" cornerRadius="4" color="#000000">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			
+			import printing.CheckBoxList;
+			
+			private var _controller:String;
+			private var _additionalData:Object = {};	
+			private var _lastOperation:Function;
+			
+			private var _gridDataToPrint:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			public var selectedRecords:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			public var currentPageRecords:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			public var totalPageCount:int = 1;
+			[Bindable]
+			public var totalRecordCount:int = 1;
+			[Bindable]
+			public var recordsPerPage:int = 1;
+			[Bindable]
+			public var titleLabel:String = "Print Options";
+			
+			private var printPrevWin:PrintPreviewWin = new PrintPreviewWin;	
+			
+			public var objPrintPreviewSettings:Object;
+			
+			private var _columnsDataList:Array = new Array;
+			public var selectAllLabel:String = "All";
+			public var selectAllChecked:Boolean = false;
+						
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				this.addEventListener(CloseEvent.CLOSE, winCloseHandler)
+				this.setStyle("fontFamily", "Verdana");
+				this.title = titleLabel;
+			}			
+			
+			public function set additionalData(value:Object):void
+			{
+				_additionalData = value;
+			}
+			
+			
+			public function set controller(value:String):void
+			{
+				_controller = value;
+			}
+
+			public function get columnsDataList():Array
+			{
+				return _columnsDataList;
+			}
+			
+			public function set columnsDataList(value:Array):void
+			{
+				_columnsDataList = value;
+				
+				var listDataArr:Array = [];	
+				
+				var firstItem:Object = {};
+				firstItem["visible"] = selectAllChecked;	
+				firstItem["headerText"] = selectAllLabel;	
+				firstItem["name"] = "nameAsID_selectAll";				
+				listDataArr.push(firstItem);//add the fist child to selectAll
+				
+				var i:int = 0;
+				
+				if(value[0]["dataField"] == "first_1ColumnCheckBoxSelectionAsID")
+					i = 1;//loop starts from 1 because we want to skip the checkbox column
+				
+				for (; i < value.length; i++) 
+				{
+					var itemObj:Object = {	dataField: 	value[i]["dataField"],
+						headerText: value[i]["headerText"],
+						visible: 	value[i]["visible"],
+						width:		value[i]["width"]	};
+					
+					listDataArr.push(itemObj);
+				}
+				
+				columnsList.dataProvider = listDataArr;
+				
+				//set selectedIndices
+				var newSelIndexs:Array = [];
+				var index:int = 0;
+				if(selectAllChecked)
+				{
+					newSelIndexs.push(index);
+				}
+				else
+				{
+					for each(var column:Object in listDataArr as Object)
+					{
+						if(column.visible)
+						{
+							newSelIndexs.push(index);
+						}
+						index++;
+					}
+				}
+				
+				columnsList.selectedIndices = newSelIndexs;
+				columnsList.invalidateList();//refresh
+			}
+			
+			public function buildXMLContent(xmldata:XML):void
+			{
+				
+			}
+			
+			protected function colList_itemClickHandler(event:ListEvent):void
+			{
+				selectAllChecked = false;
+				var selectedItem:Object = CheckBoxList(event.target).selectedItem;		
+				if(selectedItem != null)
+					if(selectedItem["name"] == "nameAsID_selectAll")
+					{
+						CheckBoxList(event.target).selectedIndices = [0];
+						selectAllChecked = true;
+					}
+					else
+					{					
+						var selIndexs:Array = CheckBoxList(event.target).selectedIndices;
+						var newSelIndexs:Array = [];
+						for (var i:int = 0; i < selIndexs.length; ++i){
+							if(selIndexs[i] != 0 )
+								newSelIndexs.push(selIndexs[i]);
+						}
+						
+						CheckBoxList(event.target).selectedIndices = newSelIndexs;						
+					}				
+			}
+			
+			private function getSelectedColumns():Array
+			{
+				var ret:Array;
+				var ret2:Array = new Array();	
+				
+				if(selectAllChecked)
+					ret = columnsDataList;
+				else
+					ret = columnsList.selectedItems;
+				
+				for(var i:int=0;i< ret.length;i++)
+				{
+					var col:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+					col.dataField = ret[i].dataField;
+					col.headerText = ret[i].headerText;
+					col.width = ret[i].width;
+					ret2.push(col);
+				}
+				
+				return ret2;
+			}
+			
+			protected function printPreviewBtn_clickHandler(action:String = "preview"):void
+			{
+				printPrevWin.onShowAction = action;	
+				printPrevWin.height = int(Application.application.height - 30);
+				PopUpManager.addPopUp(printPrevWin, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(printPrevWin);	
+				
+				printPrevWin.gridColumns = getSelectedColumns();
+				printPrevWin.gridDataToPrint = _gridDataToPrint;
+				//printPrevWin.configureGridData( _gridDataToPrint, getSelectedColumns());		
+				printPrevWin.configContent( objPrintPreviewSettings );
+				
+				loadingIndicator.visible = false;
+				winCloseHandler();						
+			}			
+			
+			protected function okBtn_clickHandler(event:MouseEvent):void
+			{
+				
+				switch(whatToPrint.selectedValue)
+				{
+					case 0://all pages
+						
+						break;
+					case 1://currentPage
+						_gridDataToPrint = this.currentPageRecords;
+						printPreviewBtn_clickHandler();
+						break;
+					case 2://a page range						
+						
+						break;
+					case 3://selectedRows
+						_gridDataToPrint = this.selectedRecords
+						printPreviewBtn_clickHandler();
+						break;
+					default:
+						break;
+				}
+			}
+			
+			protected function winCloseHandler(event:CloseEvent = null):void
+			{
+				PopUpManager.removePopUp(this);	
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Label text="Print Range:" fontSize="11" x="10" y="3"/>	
+	<mx:VBox id="printOptions" width="200" height="166" paddingLeft="8" verticalGap="6" 
+			 x="6" y="21" horizontalScrollPolicy="off">
+		<mx:Spacer height="1"/>		
+		<mx:RadioButtonGroup id="whatToPrint"/>		
+		<mx:RadioButton id="currentPage" label="Current Page" selected="true"
+						value="1" groupName="whatToPrint"/>	
+		
+		<mx:RadioButton id="allPages" label="All Pages" enabled="{(totalPageCount > 1)}" 
+						value="0" groupName="whatToPrint"/>
+		
+		<mx:RadioButton id="pageRange" label="Specify Pages" enabled="{(totalPageCount > 1)}" 
+						value="2" groupName="whatToPrint"/>
+			<mx:HBox horizontalGap="5" verticalAlign="middle" enabled="{pageRange.selected}" >
+				<mx:TextInput id="startPageRange" restrict="0-9" width="40" textAlign="right" borderStyle="solid" borderColor="#5F5F5F" height="19"/>
+				<mx:Label text="to"/>
+				<mx:TextInput id="endPageRange" restrict="0-9" width="40" textAlign="right" borderStyle="solid" borderColor="#5F5F5F" height="19"/>
+				<mx:Label text="(max: {totalPageCount})" fontFamily="Arial"/>
+			</mx:HBox>
+		<mx:Spacer height="5"/>
+		
+		<mx:RadioButton id="selectedRows" label="Selected Records ({selectedRecords.length})" 
+						value="3" groupName="whatToPrint" enabled="{(selectedRecords.length > 0)}"/>
+	</mx:VBox>
+	
+	<mx:Label text="Columns to Print:" fontSize="11" x="215" y="3"/>
+	<printing:CheckBoxList id="columnsList" labelField="headerText" allowMultipleSelection="true" 
+						 itemRenderer="printing.CheckBoxRenderer"
+						 width="190" height="166" borderColor="#414141" 
+						 itemClick="colList_itemClickHandler(event)" x="214" y="21"/>
+	
+	<mx:Canvas visible="false" id="loadingIndicator" width="100%" height="100%" x="0" y="0" backgroundColor="#ffffff" backgroundAlpha=".9">
+		<mx:Label text="Loading and Preparing data ..." fontSize="13" fontWeight="bold" verticalCenter="0" horizontalCenter="0"/>
+	</mx:Canvas>
+	
+	<mx:ControlBar horizontalAlign="center" paddingBottom="5" paddingTop="5" enabled="{!loadingIndicator.visible}">
+		<mx:Button id="okBtn" label="Preview" click="okBtn_clickHandler(event)" width="133"/><!--
+		<mx:Button id="printPreviewBtn" label="Preview" click="printPreviewBtn_clickHandler('preview')" width="133"/>
+		<mx:Button id="printBtn" label="Print" click="printPreviewBtn_clickHandler('print')"/>
+		<mx:Button id="pdfBtn" label="Generate PDF" click="printPreviewBtn_clickHandler('pdf')"/>-->
+		<mx:Button id="cancelBtn" label="Cancel" click="winCloseHandler()"/>	
+	</mx:ControlBar>	
+		
+</mx:TitleWindow>

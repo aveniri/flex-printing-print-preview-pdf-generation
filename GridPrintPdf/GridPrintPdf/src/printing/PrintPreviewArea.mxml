@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" backgroundColor="#ffffff" 
+		 creationComplete="creationCompleteHandler()" verticalGap="0"
+		 width="100%" height="100%" verticalAlign="top" 
+		 borderStyle="solid" borderColor="#FFFFFF"
+		 xmlns:fromMX="printing.fromMX.*" >
+		
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.DateChooser;
+			import mx.controls.DateField;
+			import mx.events.ResizeEvent;
+			
+			[Bindable]
+			private var fixedRowHeight:Number = 24;
+			[Bindable]
+			public var gridDPcollection:ArrayCollection;
+			[Bindable]
+			public var pageNumber:int = 1;
+			[Bindable]
+			public var totalPageNumber:int = 1;
+			[Bindable]
+			public var totalRows:Number = 0;
+			
+			[Bindable]
+			public var showReportHeader:Boolean = true;
+			[Bindable]
+			public var showReportFooter:Boolean = false;
+			[Bindable]
+			public var showPageHeader:Boolean = false;
+			[Bindable]
+			public var showPageFooter:Boolean = true;
+			
+			[Bindable]
+			public var heightReportHeader:Number = 130;
+			[Bindable]
+			public var heightPageHeader:Number = 25;
+			[Bindable]
+			public var heightPageFooter:Number = 25;
+			[Bindable]
+			public var heightReportFooter:Number = 40;
+			
+			[Bindable]
+			public var logoImgSource:String = "";
+			[Bindable]
+			public var reportHeaderMessage:String = "";
+			[Bindable]
+			public var reportFooterMessage:String = "";
+			
+			private function creationCompleteHandler():void
+			{
+			}
+			
+			// Control the page contents by selectively hiding the header and
+			// footer based on the page type.
+			public function preparePrintPage(pageType:String):void 
+			{				
+				var remainingHeight:Number = this.height;
+				
+				if(showPageHeader){
+					pageHeaderBox.includeInLayout=true;
+					pageHeaderBox.visible = true;
+					remainingHeight -= pageHeaderBox.height;
+				}else{
+					pageHeaderBox.includeInLayout=false;
+					pageHeaderBox.visible = false;
+				}
+				
+				if(showPageFooter){
+					pageFooterBox.includeInLayout=true;
+					pageFooterBox.visible = true;
+					remainingHeight -= pageFooterBox.height;
+				}else{						
+					pageFooterBox.includeInLayout=false;
+					pageFooterBox.visible = false;
+				}
+				
+				if(pageType == "first"){//pageType != "middle" || pageType != "last") {
+					// Show the header.
+					if(showReportHeader){
+						reportHeaderBox.includeInLayout=true;
+						reportHeaderBox.visible = true;
+						remainingHeight -= reportHeaderBox.height;
+					}else{						
+						reportHeaderBox.includeInLayout=false;
+						reportHeaderBox.visible = false;
+					}
+				}
+				
+				if(pageType == "first" || pageType == "middle") {					
+					// Hide Report Footer.
+					reportFooterBox.includeInLayout=false;
+					reportFooterBox.visible = false;
+				}
+				
+				if(pageType == "middle" || pageType == "last") {
+					// The header won't be used again; hide it.
+					reportHeaderBox.includeInLayout=false;
+					reportHeaderBox.visible = false;
+				}
+				
+				if(pageType == "last") {
+					// Show the footer.
+					if(showReportFooter){
+						reportFooterBox.includeInLayout=true;
+						reportFooterBox.visible = true;
+						remainingHeight -= reportFooterBox.height;
+					}else{						
+						reportFooterBox.includeInLayout=false;
+						reportFooterBox.visible = false;
+					}
+				}
+				
+				//var heightModulo:Number = remainingHeight % fixedRowHeight;	
+				remainingHeight -= int(this.getStyle("paddingTop"));
+				remainingHeight -= int(this.getStyle("paddingBottom"));
+				printGrid.height = remainingHeight - 2;
+				
+				//Update the DataGrid layout to reflect the results.
+				validateNow();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Style>
+		
+		.printDataGrid {
+			backgroundColor: #ffffff;
+			alternatingItemColors: #ffffff, #ffffff;
+			headerColors: #f9f9f9, #dddddd;
+			horizontalGridLines: true;
+			horizontalGridLineColor: #666666;
+			verticalGridLines: true;
+			verticalGridLineColor: #333333;
+			useRollOver: false;
+			borderColor: #333333;
+			dropShadowEnabled: false;
+		}
+		
+	</mx:Style>
+	
+	<mx:Canvas id="reportHeaderBox" backgroundColor="#F9F8F3" height="{heightReportHeader}" width="100%">	
+		<mx:Image id="reportHeaderLogo" source="{logoImgSource}" 
+				  width="100%" height="100%" scaleContent="false"/>
+		<mx:Label id="printDateLabel" top="15" right="15" text="Print Date: {DateField.dateToString(new Date, 'DD/MM/YYYY')}"/>
+		<mx:Text id="reportHeaderMessageLbl" text="{reportHeaderMessage}" bottom="3" left="10" right="10"/>
+	</mx:Canvas>
+	<mx:HBox id="pageHeaderBox" height="{heightPageHeader}" width="100%" backgroundColor="#DDDDDD" 
+			 horizontalAlign="right" verticalAlign="middle"  paddingLeft="10" paddingRight="10">
+		<mx:Label id="headerPageNumber" horizontalCenter="0" bottom="10" text="Page: {pageNumber+' / '+totalPageNumber}" fontWeight="bold"/>
+	</mx:HBox>
+	<fromMX:PrintAdvancedDataGrid id="printGrid" styleName="printDataGrid" width="100%" height="100%"
+								  headerHeight="22" rowHeight="{fixedRowHeight}"								  
+								  allowInteraction="true" sortExpertMode="true"  
+								  dataProvider="{gridDPcollection}" >
+		
+	</fromMX:PrintAdvancedDataGrid>
+	
+	<mx:HBox id="pageFooterBox" height="{heightPageFooter}" width="100%" backgroundColor="#DDDDDD" 
+			 horizontalAlign="left" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+		<mx:Label id="footerPageSummary" horizontalCenter="0" bottom="10" text="" width="100%"/>
+		<mx:Label id="footerPageNumber" horizontalCenter="0" bottom="10" text="Page: {pageNumber+' / '+totalPageNumber}" fontWeight="bold"/>		
+	</mx:HBox>
+	<mx:HBox id="reportFooterBox" height="{heightReportFooter}" width="100%" backgroundColor="#F1F1F1"  verticalAlign="middle">
+		<mx:Text id="reportFooterMessageLbl" text="{reportFooterMessage}" width="100%"/>		
+	</mx:HBox>
+</mx:VBox>

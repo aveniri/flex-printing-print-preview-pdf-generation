@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:printing="printing.*"
+				minWidth="955" minHeight="600" backgroundColor="#FFFFFF"
+				backgroundGradientAlphas="[1.0, 1.0]" backgroundGradientColors="[#EBEBEB, #F9F8F8]"
+				creationComplete="onComplete()" layout="vertical" verticalGap="25">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;			
+			import printing.PrintOptionsWin;
+			
+			
+			public var objPrintPreviewSettings:Object = {
+					logoImageSource: "assets/kreatx_logo.png",
+					reportHeaderHeight: 150, reportFooterHeight: 40,
+					reportHeaderMessage: "Testing KreatXGrid Printing",
+					reportFooterMessage: "Conclusion Message at the end of the report.",
+					reportHeaderMessageAlign: "right", reportFooterMessageAlign: "center"			
+				};
+			
+			
+			private var _printOpWin:PrintOptionsWin = new PrintOptionsWin;	
+			
+			[Bindable]
+			public var gridSource:ArrayCollection = new ArrayCollection();
+			private var totalRecords:Number = 100;
+			
+			private function onComplete():void 
+			{
+				for (var i:int = 1; i<=totalRecords; i++) 
+				{
+					var obj:Object = new Object();
+					obj.item = "Item " + (i + 1).toString();
+					obj.quantity = Math.ceil(Math.random() * totalRecords);
+					obj.price = Math.random() * totalRecords;
+					obj.active = randomBoolean();
+					gridSource.addItem(obj);
+				}
+			}
+			
+			private function randomBoolean():String 
+			{
+				var randVal:int = Math.round(Math.random());
+				var randStr:String = "False";
+				
+				if(randVal == 1){
+					randStr = "True";
+				}
+				
+				return randStr;
+			}
+			
+			protected function printOrPDF_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.addPopUp(_printOpWin, this, true);
+				PopUpManager.centerPopUp(_printOpWin);	
+				_printOpWin.columnsDataList = sampleDG.columns;
+				_printOpWin.totalRecordCount = totalRecords;
+				_printOpWin.selectedRecords = new ArrayCollection(sampleDG.selectedItems);
+				_printOpWin.currentPageRecords = (sampleDG.dataProvider as ArrayCollection);
+				
+				_printOpWin.objPrintPreviewSettings = this.objPrintPreviewSettings;
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:Button width="219" height="41" label="Print/PDF" borderColor="#0169B2"
+			   click="printOrPDF_clickHandler(event)" color="#2152AD"
+			   fillAlphas="[1.0, 1.0, 1.0, 1.0]" fillColors="[#F0F0F0, #FEFEFE, #D3D3D3, #A5A2A2]"
+			   fontSize="14"/>
+	
+	<printing:ADGridExtended id="sampleDG" width="600" height="500" allowMultipleSelection="true"
+							 borderColor="#004E84" dataProvider="{gridSource}" headerHeight="26">
+		<printing:columns>
+			<mx:AdvancedDataGridColumn itemRenderer="printing.CheckBoxRenderer" headerRenderer="printing.CheckBoxHeaderRenderer"
+									   width="26" editable="false" sortable="false" resizable="false" dataField="first_1ColumnCheckBoxSelectionAsID"/>
+			<mx:AdvancedDataGridColumn headerText="Item #" dataField="item"/>
+			<mx:AdvancedDataGridColumn headerText="Quantity" dataField="quantity"/>
+			<mx:AdvancedDataGridColumn headerText="Price" dataField="price"/>
+			<mx:AdvancedDataGridColumn headerText="Active" dataField="active"/>
+		</printing:columns>
+	</printing:ADGridExtended>
+	
+</mx:Application>

@@ -1,0 +1,77 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>PrintPageSize.as</title>
+<link rel="stylesheet" type="text/css" href="../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">printing</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">PrintPageSize</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">A3_SIZE</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"A3"</span><span class="ActionScriptOperator">,</span> 842<span class="ActionScriptOperator">,</span> 1191<span class="ActionScriptBracket/Brace">)</span>;<span class="ActionScriptComment">//11.69 x 16.54 * 72
+</span>        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">A4_SIZE</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"A4"</span><span class="ActionScriptOperator">,</span> 595<span class="ActionScriptOperator">,</span> 842<span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">//8.27 x 11.69 * 72
+</span>        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">A5_SIZE</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"A5"</span><span class="ActionScriptOperator">,</span> 420<span class="ActionScriptOperator">,</span> 595<span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">//5.83 x 8.27 * 72
+</span>        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">LETTER_SIZE</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Letter"</span><span class="ActionScriptOperator">,</span> 612<span class="ActionScriptOperator">,</span> 792<span class="ActionScriptBracket/Brace">)</span>;<span class="ActionScriptComment">//8.5 x 11 * 72
+</span>        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">LEGAL_SIZE</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Legal"</span><span class="ActionScriptOperator">,</span> 612<span class="ActionScriptOperator">,</span> 1008<span class="ActionScriptBracket/Brace">)</span>;<span class="ActionScriptComment">//8.5 x 14 * 72
+</span>        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">TABLOID</span>:<span class="ActionScriptDefault_Text">PrintPageSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Tabloid"</span><span class="ActionScriptOperator">,</span> 792<span class="ActionScriptOperator">,</span> 1224<span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">LANDSCAPE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"Landscape"</span>;
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">PORTRAIT</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"Portrait"</span>;
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sizes</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span>     <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">A3_SIZE</span><span class="ActionScriptOperator">,</span> 
+                                            <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">A4_SIZE</span><span class="ActionScriptOperator">,</span> 
+                                            <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">A5_SIZE</span><span class="ActionScriptOperator">,</span>
+                                            <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LEGAL_SIZE</span><span class="ActionScriptOperator">,</span> 
+                                            <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LETTER_SIZE</span><span class="ActionScriptOperator">,</span> 
+                                            <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TABLOID</span> <span class="ActionScriptBracket/Brace">]</span>;
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">orientations</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PORTRAIT</span><span class="ActionScriptOperator">,</span> 
+                                                <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LANDSCAPE</span> <span class="ActionScriptBracket/Brace">]</span>;
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_labelName</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"A4"</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_shortSide</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_longSide</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0;
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">PrintPageSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">lblname</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"A4"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">short</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">long</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0 <span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_labelName</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">lblname</span>;
+            <span class="ActionScriptDefault_Text">_shortSide</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">short</span>;
+            <span class="ActionScriptDefault_Text">_longSide</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">long</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+                        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">labelName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_labelName</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">labelName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_labelName</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">shortSide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">int</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_shortSide</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">shortSide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_shortSide</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">longSide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">int</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_longSide</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">longSide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_longSide</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

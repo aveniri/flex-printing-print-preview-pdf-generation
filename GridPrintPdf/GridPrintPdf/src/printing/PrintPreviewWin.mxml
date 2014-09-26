@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="absolute" height="600" minWidth="570"
+				roundedBottomCorners="false" borderThicknessLeft="0" 
+				borderThicknessRight="0" cornerRadius="5"  
+				creationComplete="creationCompleteHandler(event)" 
+				dropShadowEnabled="true" shadowDistance="3"
+				addedToStage="titlewindowAddedToStageHandler(event)" 
+				xmlns:printing="printing.*"
+				showCloseButton="true" close="winCloseHandler(event)"
+				borderColor="#cccccc" borderAlpha="1"
+				highlightAlphas="[.5, 0]" headerColors="[#bbbbbb, #bbbbbb]"	
+				footerColors="[#cccccc, #cccccc]" color="#000000">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.NumericStepperEvent;
+			import mx.events.TweenEvent;
+			import mx.formatters.DateFormatter;
+			import mx.graphics.ImageSnapshot;
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.managers.PopUpManager;
+			import mx.printing.FlexPrintJob;
+			
+			import org.alivepdf.display.Display;
+			import org.alivepdf.images.ColorSpace;
+			import org.alivepdf.layout.Layout;
+			import org.alivepdf.layout.Size;
+			import org.alivepdf.layout.Unit;
+			import org.alivepdf.pdf.PDF;
+			import org.alivepdf.saving.Method;	
+			
+			
+			[Embed(source='assets/printing/reflectTopMargin.png')] 
+			[Bindable] private var reflectTopMargin:Class;
+			[Embed(source='assets/printing/reflectBottomMargin.png')] 
+			[Bindable] private var reflectBottomMargin:Class;
+			
+			[Bindable]
+			public var titleLabel:String = "Print Preview";
+						
+			public var gridColumns:Array = new Array;
+			private var _gridDataToPrint:ArrayCollection = new ArrayCollection;
+			
+			public var onShowAction:String = "preview"; // print // pdf
+			private var pdf:PDF;
+			[Bindable]
+			public var pageSizeListSelIndex:int = 1;
+			[Bindable]
+			public var pageOrientationListSelIndex:int = 0;
+				
+			[Bindable]
+			private var pageSizeAC:ArrayCollection = new ArrayCollection( PrintPageSize.sizes );
+			
+			[Bindable]
+			private var pageOrientationAC:ArrayCollection = new ArrayCollection( PrintPageSize.orientations );
+			
+			[Bindable]
+			private var pageMarginAC:ArrayCollection = new ArrayCollection([ 
+										{labelName: "Margin:", data: ""}, 
+										{labelName: "Top", data: "top"}, 
+										{labelName: "Left", data: "left"}, 
+										{labelName: "Right", data: "right"}, 
+										{labelName: "Bottom", data: "bottom"} ]);
+			
+			public function set gridDataToPrint(value:ArrayCollection):void
+			{
+				_gridDataToPrint = value;
+				printPreviewArea.printGrid.columns = gridColumns;
+				printPreviewArea.printGrid.dataProvider = value;	
+				calcPreviewPageCount();				
+			}
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{				
+				this.addEventListener(CloseEvent.CLOSE, winCloseHandler)
+				this.setStyle("fontFamily", "Verdana");
+				
+				this.title = titleLabel;
+				
+				onPageSizeOrientationChange();
+				printPreviewArea.setStyle("resizeEffect", printViewResizeEff);
+				PopUpManager.centerPopUp(this);	
+			}
+			
+			public function configContent(objData:Object):void
+			{	
+				if(objData)
+				{
+					printPreviewArea.logoImgSource = String(objData.logoImageSource);
+					printPreviewArea.heightReportHeader = int(objData.reportHeaderHeight);
+					printPreviewArea.heightReportFooter = int(objData.reportFooterHeight);
+					
+					printPreviewArea.reportHeaderMessageLbl.text = String(objData.reportHeaderMessage);
+					printPreviewArea.reportHeaderMessageLbl.setStyle("textAlign", String(objData.reportHeaderMessageAlign));
+					
+					printPreviewArea.reportFooterMessageLbl.text = String(objData.reportFooterMessage);
+					printPreviewArea.reportFooterMessageLbl.setStyle("textAlign", String(objData.reportFooterMessageAlign));
+				}
+				
+				navigatePreviewPages("first");				
+			}
+			
+			protected function winCloseHandler(event:Event = null):void
+			{
+				pageSizeListSelIndex = pageSizeList.selectedIndex;
+				pageOrientationListSelIndex = pageOrientationList.selectedIndex;
+				onPageSizeOrientationChange();
+				navigatePreviewPages("first");
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onPageSizeOrientationChange():void
+			{
+				if(pageOrientationList.selectedLabel == PrintPageSize.LANDSCAPE)
+				{
+					printPreviewArea.width = (pageSizeList.selectedItem as PrintPageSize).longSide;
+					printPreviewArea.height = (pageSizeList.selectedItem as PrintPageSize).shortSide;
+				}else{
+					printPreviewArea.width = (pageSizeList.selectedItem as PrintPageSize).shortSide;
+					printPreviewArea.height = (pageSizeList.selectedItem as PrintPageSize).longSide;
+				}
+			}
+			
+			protected function headerFooterVisible_changeHandler(event:Event):void
+			{
+				printPreviewArea.showReportHeader = reportHeaderVisible.selected;
+				printPreviewArea.showReportFooter = reportFooterVisible.selected;
+				printPreviewArea.showPageHeader = pageHeaderVisible.selected;
+				printPreviewArea.showPageFooter = pageFooterVisible.selected;
+				calcPreviewPageCount();
+			}
+			
+			protected function printViewResizeEff_effectEndHandler(event:EffectEvent):void
+			{
+				calcPreviewPageCount();
+				printViewResizeEff.duration = 500;
+			}			
+			
+			protected function printViewResizeEff_tweenUpdateHandler(event:TweenEvent):void
+			{				
+				this.move(int((Application.application.width - this.width)/2 - 30), 15);
+				//PopUpManager.centerPopUp(this);	
+			}
+
+			/**************************************************
+			 *** 		PREVIEW NAVIGATION & CREATION  		***
+			 **************************************************/
+			public function navigatePreviewPages(navPage:String):void 
+			{
+				switch (navPage){
+					case "first":						
+						printPreviewArea.printGrid.moveToFirstPage();
+						printPreviewArea.preparePrintPage("first");				
+						printPreviewArea.pageNumber = 1;
+						break;
+					case "prev":
+						if(printPreviewArea.pageNumber == 2){
+							navigatePreviewPages("first");
+						}else{
+							printPreviewArea.printGrid.previousPage();		
+							printPreviewArea.preparePrintPage("middle");
+							printPreviewArea.pageNumber--;
+						}
+						break;
+					case "next":						
+						printPreviewArea.printGrid.nextPage();		
+						if(printPreviewArea.pageNumber == (printPreviewArea.totalPageNumber-1))
+							printPreviewArea.preparePrintPage("last");
+						else
+							printPreviewArea.preparePrintPage("middle");
+						printPreviewArea.pageNumber++;
+						break;
+					case "last":						
+						while(printPreviewArea.pageNumber < printPreviewArea.totalPageNumber)
+						{
+							navigatePreviewPages("next");
+						}
+						break;
+					default:
+						break;
+				}
+			}
+			
+			//CALUCULATE AND CREATE PAGES			
+			public function calcPreviewPageCount():void 
+			{				
+				navigatePreviewPages("first");
+				printPreviewArea.totalPageNumber = 1;
+				
+				if(printPreviewArea.printGrid.validNextPage)
+				{					
+					printPreviewArea.preparePrintPage("first");	
+					printPreviewArea.totalPageNumber++;
+										
+					while(true)// Loop through all pages
+					{
+						// Move the next page of data to the top of the PrintDataGrid.
+						printPreviewArea.printGrid.nextPage();
+						
+						// Try creating a last page.
+						printPreviewArea.preparePrintPage("last");  
+						
+						if(!printPreviewArea.printGrid.validNextPage) 
+						{
+							break;// last page, exit the print loop.							
+						}
+						else // This is not the last page. Queue a middle page. 
+						{
+							printPreviewArea.preparePrintPage("middle");
+							printPreviewArea.totalPageNumber++;
+						}
+					}
+				}
+				//reset veiw to first page;
+				navigatePreviewPages("first");
+			}
+			
+			
+			/******************************************
+			*** 		PRINTING METHOD				***
+			******************************************/			
+			public function doPrint():void {
+				// Create a FlexPrintJob instance.
+				var printJob:FlexPrintJob = new FlexPrintJob();
+				printJob.printAsBitmap = false;
+				printViewResizeEff.duration = 0;
+				// Start the print job.
+				if (printJob.start()) 
+				{
+					navigatePreviewPages("first");	
+					printPreviewArea.pageNumber = 1;
+					
+					// Set the print view properties.
+					printPreviewArea.width = printJob.pageWidth;
+					printPreviewArea.height = printJob.pageHeight;
+					
+					// Create a single-page image.
+					printPreviewArea.preparePrintPage("single");
+					
+					// If the print image's DataGrid can hold all the  
+					// data provider's rows, add the page to the print job. 
+					if(!printPreviewArea.printGrid.validNextPage)
+					{
+						printJob.addObject(printPreviewArea);
+					}
+					else // Otherwise, the job requires multiple pages.
+					{
+						// Create the first page and add it to the print job.
+						printPreviewArea.preparePrintPage("first");
+						printJob.addObject(printPreviewArea);
+						printPreviewArea.pageNumber++;
+						
+						// Loop through the following code 
+						// until all pages are queued.
+						while(true)
+						{
+							// Move the next page of data to the top of 
+							// the PrintDataGrid.
+							printPreviewArea.printGrid.nextPage();
+							
+							// Try creating a last page.
+							printPreviewArea.preparePrintPage("last");  
+							
+							// If the page holds the remaining data, or if 
+							// the last page was completely filled by the last  
+							// grid data, queue it for printing.
+							// Test if there is data for another 
+							// PrintDataGrid page.
+							if(!printPreviewArea.printGrid.validNextPage) 
+							{
+								// This is the last page; 
+								// queue it and exit the print loop.
+								printJob.addObject(printPreviewArea);
+								break;
+							}
+							else // This is not the last page. Queue a middle page. 
+							{
+								printPreviewArea.preparePrintPage("middle");
+								printJob.addObject(printPreviewArea);
+								printPreviewArea.pageNumber++;
+							}
+						}
+					}
+				}
+				// Send the job to the printer.
+				printJob.send();
+				winCloseHandler();
+			}
+			
+			/******************************************
+			 *** 		PDF FUNCTIONALITY			***
+			 ******************************************/	
+			
+			private var asyncEncoder:JPEGFasterAsyncEncoder;
+			private var bitmapData:BitmapData
+			private var progress:ProgressBox;
+			private var pdfGenerationIndex:int = 1;
+		
+			public function generatePDF():void
+			{
+				var selItemSize:PrintPageSize = (pageSizeList.selectedItem as PrintPageSize);
+				var pdfPageSize:Size = new Size([selItemSize.shortSide, selItemSize.longSide], selItemSize.labelName, [], []); 
+				pdf = new PDF(pageOrientationList.selectedLabel, Unit.POINT, pdfPageSize);
+				pdf.setDisplayMode( Display.FULL_PAGE, Layout.SINGLE_PAGE);
+				pdf.setMargins(0,0,0,0);
+								
+				navigatePreviewPages("first");	
+				printPreviewArea.pageNumber = 1;
+				pdfGenerationIndex = 1;
+				
+				progress = PopUpManager.createPopUp(this, ProgressBox) as ProgressBox;
+				PopUpManager.centerPopUp(progress);
+				
+				createPDFPage();
+			}
+			
+			private function createPDFPage():void
+			{		
+				asyncEncoder = new JPEGFasterAsyncEncoder(90);
+				asyncEncoder.PixelsPerIteration = 1000;//max 1000
+				asyncEncoder.addEventListener(ProgressEvent.PROGRESS, updateProgress);
+				asyncEncoder.addEventListener(JPEGAsyncCompleteEvent.JPEGASYNC_COMPLETE, asyncComplete);
+				
+				pdf.addPage();
+				if(pdfGenerationIndex==1)	
+					navigatePreviewPages("first");	
+				else
+					navigatePreviewPages("next");
+				
+				bitmapData = new BitmapData(printPreviewArea.width, printPreviewArea.height);
+				bitmapData.draw(printPreviewArea, null, null, null, null, true);
+				
+				asyncEncoder.encode(bitmapData);
+			}
+			
+			private function updateProgress(event:ProgressEvent):void
+			{
+				progress.progBar.setProgress(event.bytesLoaded, event.bytesTotal);
+				var currentPdfPage:String = "Generated PDF Page: "+ pdfGenerationIndex +" / "+printPreviewArea.totalPageNumber;
+				progress.progBar.label = (event.bytesLoaded / event.bytesTotal * 100).toFixed() + "% "+currentPdfPage;
+			}
+			
+			private function asyncComplete(event:JPEGAsyncCompleteEvent):void
+			{
+				pdf.addImageStream( event.ImageData, ColorSpace.DEVICE_RGB);						
+				bitmapData.dispose();
+				System.gc();
+				 
+				if(pdfGenerationIndex < printPreviewArea.totalPageNumber){
+					pdfGenerationIndex++;
+					createPDFPage();
+				}else{
+					PopUpManager.removePopUp(progress);		
+					
+					Alert.show("PDF is ready!", "", 4, null, 
+						function(event:Event):void {
+							var dtFormater:DateFormatter = new DateFormatter; 
+							dtFormater.formatString = "DD-MM-YY JJNNSS";
+							var pdfFilename:String = "raport "+dtFormater.format(new Date)+".pdf.pdf";
+							
+							var file:FileReference = new FileReference();
+							file.addEventListener(Event.COMPLETE, winCloseHandler);
+							file.save(pdf.save(Method.LOCAL), pdfFilename);
+							winCloseHandler();
+						}
+					);
+				}
+			}
+			
+			
+			/***********************************************
+			 *** 			MARGIN'S FUNCTIONS			****				
+			 ***********************************************/
+			protected function printMargin_changeHandler(event:ListEvent):void
+			{				
+				marginPaddingValueNS.width = 73;
+				reflectUpDownMarginBtn.width = 0;
+				reflectUpDownMarginBtn.visible = false;
+				
+				marginPaddingValueNS.enabled = true;
+				switch(pagePrintMarginList.selectedItem.data){
+					case 'top':						
+						marginPaddingValueNS.value = int(printPreviewArea.getStyle("paddingTop"));
+						break;
+					case 'left':						
+						marginPaddingValueNS.value = int(printPreviewArea.getStyle("paddingLeft"));
+						break;
+					case 'right':
+						marginPaddingValueNS.value = int(printPreviewArea.getStyle("paddingRight"));						
+						break;
+					case 'bottom':						
+						marginPaddingValueNS.value = int(printPreviewArea.getStyle("paddingBottom"));
+						break;
+					default:
+						marginPaddingValueNS.enabled = false;
+						marginPaddingValueNS.value = 0;
+						break;					
+				}
+			}
+
+			//ON CHANGE
+			protected function marginPaddingValueNS_changeHandler(event:NumericStepperEvent = null):void
+			{
+								
+				switch(pagePrintMarginList.selectedItem.data){
+					case 'top':
+						reflectUpDownMarginBtn.setStyle("icon", reflectTopMargin);
+						reflectUpDownMarginBtn.toolTip = "Reflect Top Margin Changes"; 
+						marginPaddingValueNS.width = 54;
+						reflectUpDownMarginBtn.width = 19;
+						reflectUpDownMarginBtn.visible = true;
+						break;
+					case 'left':
+						printPreviewArea.setStyle("paddingLeft", marginPaddingValueNS.value);
+						break;
+					case 'right':
+						printPreviewArea.setStyle("paddingRight", marginPaddingValueNS.value);						
+						break;
+					case 'bottom':
+						reflectUpDownMarginBtn.setStyle("icon", reflectBottomMargin);	
+						reflectUpDownMarginBtn.toolTip = "Reflect Bottom Margin Changes";				
+						marginPaddingValueNS.width = 54;
+						reflectUpDownMarginBtn.width = 19;
+						reflectUpDownMarginBtn.visible = true;
+						break;
+					default:
+						marginPaddingValueNS.enabled = false;
+						marginPaddingValueNS.value = 0;
+						break;					
+				}
+			}
+			
+			protected function marginPaddingValueNS_keyDownHandler(event:KeyboardEvent):void
+			{				
+				if(event.keyCode == Keyboard.ENTER){
+					//setMargins_clickHandler();
+					pagePrintMarginList.setFocus();
+				}else{
+					marginPaddingValueNS_changeHandler();
+				}
+			}
+						
+			protected function setMargins_clickHandler():void
+			{
+				switch(pagePrintMarginList.selectedItem.data){
+					case 'top':
+						if(	marginPaddingValueNS.value != printPreviewArea.getStyle("paddingTop"))
+						{
+							printPreviewArea.setStyle("paddingTop", marginPaddingValueNS.value);
+							calcPreviewPageCount();
+						}
+						break;
+					case 'left':
+						printPreviewArea.setStyle("paddingLeft", marginPaddingValueNS.value);
+						break;
+					case 'right':
+						printPreviewArea.setStyle("paddingRight", marginPaddingValueNS.value);						
+						break;
+					case 'bottom':
+						if( marginPaddingValueNS.value != printPreviewArea.getStyle("paddingBottom"))
+						{							
+							printPreviewArea.setStyle("paddingBottom", marginPaddingValueNS.value);
+							calcPreviewPageCount();
+						}
+						break;
+					default:
+						break;					
+				}
+				
+				if(reflectUpDownMarginBtn.visible)
+				{
+					marginPaddingValueNS.width = 73;
+					reflectUpDownMarginBtn.width = 0;
+					reflectUpDownMarginBtn.visible = false;
+				}
+			}			
+			//END MARGIN FUNCTIONS
+			
+			
+			//not functional for the moment
+			protected function titlewindowAddedToStageHandler(event:Event):void
+			{
+				callLater( function():void{					
+					if(onShowAction == "print")					
+						this.doPrint();
+					
+					if(onShowAction == "pdf")					
+						this.generatePDF();
+					
+					onShowAction = "preview";
+					
+					pageSizeList.selectedIndex = pageSizeListSelIndex;
+					pageOrientationList.selectedIndex = pageOrientationListSelIndex;
+					pagePrintMarginList.selectedIndex = 0;
+					marginPaddingValueNS.enabled = false;
+					marginPaddingValueNS.value = 0;
+					
+					printViewResizeEff.duration = 500;
+				});
+			}
+
+		]]>
+	</mx:Script>
+			
+	<mx:Canvas id="tools" left="3" top="3" right="3" horizontalScrollPolicy="off">
+		<mx:HBox x="0" y="0" verticalAlign="bottom" horizontalGap="3">
+			<mx:PopUpButton id="columnsList" visible="false" label="" width="169" height="21" cornerRadius="2" fontWeight="normal"/>
+			<mx:Label text="Size:" textAlign="right" fontFamily="Arial" fontSize="10" fontStyle="normal" width="45"/>
+			<mx:ComboBox id="pageSizeList" width="80" height="21" cornerRadius="2"
+						 change="onPageSizeOrientationChange()"
+						 dataProvider="{pageSizeAC}" labelField="labelName" selectedIndex="{pageSizeListSelIndex}" fontWeight="bold" fontFamily="Arial" fontSize="11"/>
+			
+			<mx:Label text="Report:" fontFamily="Arial" fontSize="11" fontWeight="bold" width="50" textAlign="right"/>
+			<mx:CheckBox id="reportHeaderVisible" label="Header" change="headerFooterVisible_changeHandler(event)"
+						 fontFamily="Arial" height="20" fontSize="11" leading="0" horizontalGap="0" selected="true"/>
+			<mx:CheckBox id="reportFooterVisible" label="Footer" change="headerFooterVisible_changeHandler(event)"
+						 fontFamily="Arial" height="20" fontSize="11" leading="0" horizontalGap="0" selected="false"/>
+		</mx:HBox>
+		<mx:HBox x="0" y="25" horizontalGap="3" verticalAlign="bottom">
+			<mx:Button label="&lt;&lt;" id="firstNavBtn" enabled="{(printPreviewArea.pageNumber &gt; 1)}" cornerRadius="2" fontWeight="normal" fontSize="12" 
+					   height="22" width="35" paddingLeft="0" paddingRight="0" click="navigatePreviewPages('first')"/>
+			<mx:Button label="&lt;" id="prevNavBtn" enabled="{(printPreviewArea.pageNumber &gt; 1)}" cornerRadius="2" fontWeight="normal" fontSize="12" 
+					   height="22" width="45" paddingLeft="0" paddingRight="0" click="navigatePreviewPages('prev')"/>
+			<mx:Button label="&gt;" id="nextNavBtn" enabled="{(printPreviewArea.pageNumber &lt; printPreviewArea.totalPageNumber)}" cornerRadius="2" fontWeight="normal" fontSize="12" 
+					   height="22" width="45" paddingLeft="0" paddingRight="0" click="navigatePreviewPages('next')"/>
+			<mx:Button label="&gt;&gt;" id="lastNavBtn" enabled="{(printPreviewArea.pageNumber &lt; printPreviewArea.totalPageNumber)}" cornerRadius="2" fontWeight="normal" fontSize="12" 
+					   height="22" width="35" paddingLeft="0" paddingRight="0" click="navigatePreviewPages('last')"/>
+			
+			<mx:Label text="Layout:" textAlign="right" fontFamily="Arial" fontSize="10" fontStyle="normal" width="45"/>
+			<mx:ComboBox id="pageOrientationList" width="80" height="21" cornerRadius="2"
+						 change="onPageSizeOrientationChange()"
+						 dataProvider="{pageOrientationAC}" selectedIndex="{pageOrientationListSelIndex}" fontWeight="bold" fontFamily="Arial" fontSize="11"/>
+			
+			<mx:Label text="Page:" fontFamily="Arial" fontSize="11" fontWeight="bold" textAlign="right" width="50"/>
+			<mx:CheckBox id="pageHeaderVisible" label="Header" change="headerFooterVisible_changeHandler(event)"
+						 fontFamily="Arial" height="20" fontSize="11" leading="0" horizontalGap="0" selected="false"/>
+			<mx:CheckBox id="pageFooterVisible" label="Footer" change="headerFooterVisible_changeHandler(event)"
+						 fontFamily="Arial" height="20" fontSize="11" leading="0" horizontalGap="0" selected="true"/>
+			<mx:Spacer width="7" height="10"/>
+			<mx:LinkButton label="" width="0" height="22" id="reflectUpDownMarginBtn" 
+						   click="pagePrintMarginList.setFocus();" cornerRadius="1"/>
+			<mx:NumericStepper id="marginPaddingValueNS" cornerRadius="0" enabled="false" height="20"  
+							   change="marginPaddingValueNS_changeHandler(event)" fontSize="11"
+							   focusEnabled="true" focusOut="setMargins_clickHandler()"
+							   keyDown="marginPaddingValueNS_keyDownHandler(event)"
+							   width="73" maximum="1000" textAlign="right"/>
+		</mx:HBox>
+		<mx:ComboBox id="pagePrintMarginList" width="73" height="21" cornerRadius="2"
+					 change="printMargin_changeHandler(event)" paddingBottom="0"
+					 dataProvider="{pageMarginAC}" labelField="labelName"  
+					 x="481" y="1" fontFamily="Arial" fontWeight="normal" textIndent="0" leading="-1" fontSize="11"/>
+	</mx:Canvas>
+	
+	<mx:Canvas id="printPreviewContainer" verticalScrollPolicy="auto" horizontalScrollPolicy="off" 
+			   top="54" bottom="0" left="0" borderStyle="solid" borderColor="#000000" backgroundColor="#EAEAEA">
+		<mx:HBox paddingTop="15" paddingBottom="15">
+			<mx:Spacer width="10"/>
+			<printing:PrintPreviewArea id="printPreviewArea" moveEffect="Move"
+									   paddingTop="5" paddingLeft="5" paddingRight="5" paddingBottom="5"/>	
+			
+			<mx:Spacer width="22"/>
+		</mx:HBox>	
+	</mx:Canvas>
+		
+	<mx:Resize id="printViewResizeEff" duration="0" 
+			   tweenUpdate="printViewResizeEff_tweenUpdateHandler(event)" 
+			   effectEnd="printViewResizeEff_effectEndHandler(event)"/>
+	
+	<mx:ControlBar horizontalAlign="center" paddingBottom="5" paddingTop="5" 
+				   id="vBoxControlBar" fontSize="12" fontFamily="Arial">
+		<mx:Button id="generatePDFBtn" label="Generate PDF" click="generatePDF()" width="115"/>
+		<mx:Button id="printBtn" label="Print" click="doPrint()" width="115"/>
+		<mx:Button id="cancelBtn" label="Cancel" click="winCloseHandler()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

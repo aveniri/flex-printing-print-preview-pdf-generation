@@ -1,0 +1,976 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>PrintAdvancedDataGrid.as</title>
+<link rel="stylesheet" type="text/css" href="../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">////////////////////////////////////////////////////////////////////////////////
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//  ADOBE SYSTEMS INCORPORATED
+</span><span class="ActionScriptComment">//  Copyright 2009 Adobe Systems Incorporated
+</span><span class="ActionScriptComment">//  All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//  NOTICE: Adobe permits you to use, modify, and distribute this file
+</span><span class="ActionScriptComment">//  in accordance with the terms of the license agreement accompanying it.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">////////////////////////////////////////////////////////////////////////////////
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">printing</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fromMX</span>
+<span class="ActionScriptBracket/Brace">{</span>
+
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">KeyboardEvent</span>;
+
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">collections</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">CursorBookmark</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">controls</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AdvancedDataGrid</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">controls</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">advancedDataGridClasses</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AdvancedDataGridColumn</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">EdgeMetrics</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ScrollPolicy</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mx_internal</span>;
+<span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">mx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AdvancedDataGridEvent</span>;
+
+<span class="ActionScriptReserved">use</span> <span class="ActionScriptReserved">namespace</span> <span class="ActionScriptDefault_Text">mx_internal</span>;
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  Excluded APIs
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  public properties
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"allowDragSelection"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"allowMultipleSelection"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dataTipField"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dataTipFunction"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"doubleClickEnabled"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragEnabled"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"draggableColumns"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragMoveEnabled"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dropEnabled"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dropTarget"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"editable"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"editedItemPosition"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"editedItemRenderer"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"horizontalScrollBar"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"horizontalScrollPolicy"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"maxHorizontalScrollPosition"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"maxVerticalScrollPosition"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"scrollTipFunction"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectable"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectedIndex"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectedIndices"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectedItem"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectedItems"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"showScrollTips"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTip"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"useHandCursor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"verticalScrollBar"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"verticalScrollPolicy"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  protected properties
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"anchorBookmark"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"anchorIndex"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"caretBookmark"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"caretIndex"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"caretIndicator"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"caretItemRenderer"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"caretUID"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragImage"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragImageOffsets"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"highlightIndicator"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"highlightUID"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"keySelectionPending"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"lastDropIndex"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionLayer"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionTweens"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"showCaret"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"property"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  public methods
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"calculateDropIndex"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"createItemEditor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"destroyItemEditor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"effectFinished"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"effectStarted"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"endEffectStarted"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"hideDropFeedback"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"isItemHighlighted"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"isItemSelected"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"showDropFeedback"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"startDrag"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  protected methods
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragCompleteHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragDropHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragEnterHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragExitHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragOverHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragScroll"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"drawCaretIndicator"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"drawHighlightIndicator"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"drawSelectionIndicator"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseClickHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseDoubleClickHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseDownHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseEventToItemRenderer"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseMoveHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseOutHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseOverHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseUpHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseWheelHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"moveSelectionHorizontally"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"moveSelectionVertically"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"placeSortArrow"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"removeIndicators"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectItem"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"setScrollBarProperties"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"expandItemHandler"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"method"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  events
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"click"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"doubleClick"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragComplete"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragDrop"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragEnter"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragExit"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dragOver"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"effectEnd"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"effectStart"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"headerRelease"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemClick"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemDoubleClick"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemEditBegin"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemEditBeginning"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemEditEnd"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemFocusIn"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemFocusOut"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemRollOut"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"itemRollOver"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"keyDown"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"keyUp"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseDown"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseDownOutside"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseFocusChange"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseMove"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseOut"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseOver"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseUp"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseWheel"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseWheelOutside"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rollOut"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rollOver"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipCreate"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipEnd"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipHide"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipShow"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipShown"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"toolTipStart"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  styles
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"columnDropIndicatorSkin"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"columnResizeSkin"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"dropIndicatorSkin"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"headerDragProxyStyleName"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"horizontalScrollBarStyleName"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rollOverColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionDisabledColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionDuration"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"selectionEasingFunction"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"strechCursor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"textRollOverColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"textSelectedColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"useRollOver"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"verticalScrollBarStyleName"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"style"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptComment">//--------------------------------------
+</span><span class="ActionScriptComment">//  effects
+</span><span class="ActionScriptComment">//--------------------------------------
+</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"addedEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"creationCompleteEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"focusInEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"focusOutEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"hideEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseDownEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"mouseUpEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"moveEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"removedEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"resizeEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rollOutEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rollOverEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+<span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Exclude</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"showEffect"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">kind</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"effect"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+<span class="ActionScriptASDoc">/**
+ *  The PrintAdvancedDataGrid control is an AdvancedDataGrid subclass that is styled
+ *  to show a table with line borders and is optimized for printing. 
+ *  It can automatically size to properly fit its container, and removes 
+ *  any partially displayed rows.
+ *
+ *  @mxml
+ * 
+ *  &lt;p&gt;The &lt;code&gt;&amp;lt;mx:PrintAdvancedDataGrid&amp;gt;&lt;/code&gt; tag inherits the tag attributes
+ *  of its superclass; however, you do not use the properties, styles, events,
+ *  and effects (or methods) associated with user interaction.
+ *  The &lt;code&gt;&amp;lt;mx:PrintAdvancedDataGrid&amp;gt;&lt;/code&gt; tag adds the following tag attribute:
+ *  &lt;/p&gt;
+ *  &lt;pre&gt;
+ *  &amp;lt;mx:PrintAdvancedDataGrid
+ *    &lt;b&gt;Properties&lt;/b&gt;
+ *    allowInteraction="true|false"
+ *    displayIcons="true|false"
+ *    sizeToPage="true|false"
+ *    source="null"
+ *  &amp;gt; 
+ *  ...
+ *  &amp;lt;/mx:PrintAdvancedDataGrid&amp;gt;
+ *  &lt;/pre&gt;
+ * 
+ *  @see mx.printing.FlexPrintJob
+ *  @see mx.printing.PrintDataGrid
+ *  @see mx.controls.AdvancedDataGrid
+ * 
+ *  @includeExample examples/AdvancedPrintDataGridExample.mxml
+ *  
+ *  @langversion 3.0
+ *  @playerversion Flash 9
+ *  @playerversion AIR 1.1
+ *  @productversion Flex 3
+ */</span>
+<span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">PrintAdvancedDataGrid</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">AdvancedDataGrid</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Constructor
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  Constructor.
+     *
+     *  &lt;p&gt;Constructs a PrintAdvancedDataGrid control with no scroll bars, user interactivity,
+     *  column sorting, resizing, drag scrolling, selection, or keyboard
+     *  interaction.
+     *  The default height is 100% of the container height, or the height 
+     *  required to display all the data provider rows, whichever is smaller.&lt;/p&gt;
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">PrintAdvancedDataGrid</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+        <span class="ActionScriptDefault_Text">horizontalScrollPolicy</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ScrollPolicy</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">OFF</span>;
+        <span class="ActionScriptDefault_Text">verticalScrollPolicy</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ScrollPolicy</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">OFF</span>;
+        <span class="ActionScriptDefault_Text">sortableColumns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptDefault_Text">selectable</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptComment">// to disable dragScrolling
+</span>        <span class="ActionScriptDefault_Text">dragEnabled</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptDefault_Text">resizableColumns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptDefault_Text">mouseChildren</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">percentHeight</span> <span class="ActionScriptOperator">=</span> 100;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Variables
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Previous Page row count.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">previousPageRowCount</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0;
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Variable for storing the folderClosedIcon.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">folderClosedIconClass</span>:<span class="ActionScriptDefault_Text">Class</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Variable for storing the folderOpenIcon.
+     */</span>
+     <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">folderOpenIconClass</span>:<span class="ActionScriptDefault_Text">Class</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Variable for storing the defaultLeafIcon.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">defaultLeafIconClass</span>:<span class="ActionScriptDefault_Text">Class</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Storage variable for changes to displayIcons.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">displayIconsChanged</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Overridden properties
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  height
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Bindable</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"heightChanged"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Inspectable</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"General"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">PercentProxy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"percentHeight"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Getter needs to be overridden if setter is overridden.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Height setter needs to be overridden to update _originalHeight.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptDefault_Text">_originalHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">percentHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">percentHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NaN</span>;
+            <span class="ActionScriptDefault_Text">measure</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measuredHeight</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        
+        <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sizeToPage</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">explicitHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptDefault_Text">explicitHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NaN</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  percentHeight
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Bindable</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"resize"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Inspectable</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Size"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">defaultValue</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"NaN"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Getter needs to be overridden if setter is overridden.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">percentHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">percentHeight</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  percentHeight setter needs to be overridden to update _originalHeight.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">percentHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptDefault_Text">_originalHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NaN</span>;
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">percentHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Properties
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  currentPageHeight
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Storage for the currentPageHeight property.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_currentPageHeight</span>:<span class="ActionScriptDefault_Text">Number</span>;
+
+    <span class="ActionScriptASDoc">/**
+     *  The height that the PrintAdvancedDataGrid would be if the &lt;code&gt;sizeToPage&lt;/code&gt; 
+     *  property is &lt;code&gt;true&lt;/code&gt;, meaning that the PrintAdvancedDataGrid displays only completely
+     *  viewable rows and displays no partial rows. 
+     *  If the &lt;code&gt;sizeToPage&lt;/code&gt; property 
+     *  is &lt;code&gt;false&lt;/code&gt;, the value of this property equals 
+     *  the &lt;code&gt;height&lt;/code&gt; property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">currentPageHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_currentPageHeight</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  displayIcons
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Indicates that the folder/leaf icons will be displayed or not.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_displayIcons</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  If &lt;code&gt;true&lt;/code&gt;, display the folder and leaf icons in the navigation tree.
+     *
+     *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">displayIcons</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_displayIcons</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">displayIcons</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">_displayIcons</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_displayIcons</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">displayIconsChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            
+            <span class="ActionScriptDefault_Text">itemsSizeChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">invalidateProperties</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  allowInteraction
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>    
+    <span class="ActionScriptASDoc">/**
+     *  Storage for the allowInteraction property.
+     *  @private
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_allowInteraction</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  If &lt;code&gt;true&lt;/code&gt;, allows some interactions with the control, 
+     *  such as column resizing, column reordering, and expanding or collapsing nodes. 
+     *
+     *  @default false
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">allowInteraction</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_allowInteraction</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">allowInteraction</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptDefault_Text">_allowInteraction</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mouseChildren</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">resizableColumns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">else</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mouseChildren</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">resizableColumns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  originalHeight
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  Storage for the originalHeight property.
+     *  @private
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_originalHeight</span>:<span class="ActionScriptDefault_Text">Number</span>;
+
+    <span class="ActionScriptASDoc">/**
+     *  The height of the PrintAdvancedDataGrid as set by the user.
+     *  If the &lt;code&gt;sizeToPage&lt;/code&gt; property is &lt;code&gt;false&lt;/code&gt;,
+     *  the value of this property equals the &lt;code&gt;height&lt;/code&gt; property.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">originalHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_originalHeight</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  sizeToPage
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  If &lt;code&gt;true&lt;/code&gt;, the PrintAdvancedDataGrid readjusts its height to display
+     *  only completely viewable rows.
+     *
+     *  @default true
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sizeToPage</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+    
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  source
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Source ADG.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_source</span>:<span class="ActionScriptDefault_Text">AdvancedDataGrid</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     *  Initializes the PrintAdvancedDataGrid control and all of its properties 
+     *  from the specified AdvancedDataGrid control. 
+     * 
+     *  &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; The width and height of the PrintAdvancedDataGrid control  
+     *  are not taken from the source AdvancedDataGrid control.
+     *  Changes to the source AdvancedDataGrid control are not automatically reflected 
+     *  in the PrintAdvancedDataGrid instance.
+     *  Therefore, you must reset the &lt;code&gt;source&lt;/code&gt; property after changing 
+     *  the source AdvancedDataGrid control.&lt;/p&gt;
+     *
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">AdvancedDataGrid</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_source</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">AdvancedDataGrid</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptDefault_Text">_source</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dataProvider</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dataProvider</span>; <span class="ActionScriptComment">// set the dataProvider
+</span>        
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">n</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0;
+        
+        <span class="ActionScriptComment">// assign groupedColumns only if Column Grouping 
+</span>        <span class="ActionScriptComment">// is present in the source AdvancedDataGrid
+</span>        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupedColumns</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">groupColumnsArray</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> [];
+            <span class="ActionScriptDefault_Text">n</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupedColumns</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">=</span> 0; <span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">n</span>; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">groupColumnsArray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupedColumns</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clone</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupedColumns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">groupColumnsArray</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">else</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// assign the columns
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">columnArray</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> [];
+            <span class="ActionScriptDefault_Text">n</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> : 0;
+            <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">=</span> 0; <span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">n</span>; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sourceColumn</span>:<span class="ActionScriptDefault_Text">AdvancedDataGridColumn</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">col</span>:<span class="ActionScriptDefault_Text">AdvancedDataGridColumn</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sourceColumn</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clone</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">// check for treeColumn
+</span>                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sourceColumn</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">treeColumn</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">treeColumn</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">col</span>;
+                
+                <span class="ActionScriptDefault_Text">columnArray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">col</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">columnArray</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">itemRenderer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">itemRenderer</span>; <span class="ActionScriptComment">// set the itemRenderer
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">headerRenderer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">headerRenderer</span>; <span class="ActionScriptComment">// set the headerRenderer
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupItemRenderer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupItemRenderer</span>; <span class="ActionScriptComment">// set the groupItemRenderer
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rendererProviders</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rendererProviders</span>; <span class="ActionScriptComment">// set the rendererProviders
+</span>        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">labelField</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">labelField</span>; <span class="ActionScriptComment">// set the labelField
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">labelFunction</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">labelFunction</span>; <span class="ActionScriptComment">// set the labelFunction
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupIconFunction</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupIconFunction</span>; <span class="ActionScriptComment">// set the groupIconFunction
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupLabelFunction</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupLabelFunction</span>; <span class="ActionScriptComment">// set the groupLabelFunction
+</span>        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">displayDisclosureIcon</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">displayDisclosureIcon</span>; <span class="ActionScriptComment">// set displayDisclosureIcon
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">displayItemsExpanded</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">displayItemsExpanded</span>; <span class="ActionScriptComment">// set displayItemsExpanded
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">itemIcons</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">itemIcons</span>; <span class="ActionScriptComment">// set the itemsIcons
+</span>        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lockedColumnCount</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lockedColumnCount</span>; <span class="ActionScriptComment">// set lockecColumnCount
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lockedRowCount</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lockedRowCount</span>; <span class="ActionScriptComment">// set lockedRowCount
+</span>        
+        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">wordWrap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">wordWrap</span>; <span class="ActionScriptComment">// set wordWrap
+</span>        <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">variableRowHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">variableRowHeight</span>; <span class="ActionScriptComment">// set variableRowHeight
+</span>        
+        <span class="ActionScriptDefault_Text">columnsInvalid</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptDefault_Text">itemsSizeChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        
+        <span class="ActionScriptComment">// invalidate everything
+</span>        <span class="ActionScriptDefault_Text">invalidateProperties</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  validNextPage
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  Indicates that the data provider contains additional data rows that follow 
+     *  the rows that the PrintAdvancedDataGrid control currently displays.
+     *
+     *  @return A Boolean value of &lt;code&gt;true&lt;/code&gt; if a set of rows is 
+     *  available else &lt;code&gt;false&lt;/false&gt;.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">validNextPage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">vPos</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">rowCount</span> ;
+            
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">dataProvider</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">vPos</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptReserved">true</span> : <span class="ActionScriptReserved">false</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptComment">//----------------------------------
+</span>    <span class="ActionScriptComment">//  validPreviousPage
+</span>    <span class="ActionScriptComment">//----------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  Indicates that the data provider contains data rows that precede 
+     *  the rows that the PrintAdvancedDataGrid control currently displays.
+     *
+     *  @return A Boolean value of &lt;code&gt;true&lt;/code&gt; if a set of rows is 
+     *  available else &lt;code&gt;false&lt;/false&gt;.
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">validPreviousPage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">vPos</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">previousPageRowCount</span> ;
+            
+        <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">dataProvider</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">vPos</span> <span class="ActionScriptOperator">&gt;=</span> 0 <span class="ActionScriptOperator">?</span> <span class="ActionScriptReserved">true</span> : <span class="ActionScriptReserved">false</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Overridden methods: UIComponent
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Checks the changes in displayIcons and update the display.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">commitProperties</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">commitProperties</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptComment">// set treeColumn in case of a column grouped AdvacnedDataGrid
+</span>        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">source</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">groupedColumns</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">treeColumn</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">n</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> 0; <span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">n</span>; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sourceColumn</span>:<span class="ActionScriptDefault_Text">AdvancedDataGridColumn</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sourceColumn</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">source</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">treeColumn</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">treeColumn</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">displayIconsChanged</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">displayIconsChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">displayIcons</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"defaultLeafIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">defaultLeafIconClass</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderClosedIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">folderClosedIconClass</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderOpenIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">folderOpenIconClass</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptComment">// get the styles and store them
+</span>                <span class="ActionScriptDefault_Text">folderClosedIconClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderClosedIcon"</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">folderOpenIconClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderOpenIcon"</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">defaultLeafIconClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"defaultLeafIcon"</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">// set the folder/leaf icons to null
+</span>                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"defaultLeafIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderClosedIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">setStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"folderOpenIcon"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Sets the default number of display rows to dataProvider.length.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">measure</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">oldRowCount</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">rowCount</span>;
+
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">count</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        
+        <span class="ActionScriptDefault_Text">count</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> : 0;
+        
+        <span class="ActionScriptComment">// Headers should show even if there is no dataProvider
+</span>        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">count</span> <span class="ActionScriptOperator">==</span> 0 <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">headerVisible</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptDefault_Text">count</span><span class="ActionScriptOperator">++</span>;
+
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">count</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">verticalScrollPosition</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptDefault_Text">count</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">verticalScrollPosition</span>;
+        <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptDefault_Text">count</span> <span class="ActionScriptOperator">=</span> 0;
+
+        <span class="ActionScriptDefault_Text">setRowCount</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">count</span><span class="ActionScriptBracket/Brace">)</span>;
+
+        <span class="ActionScriptComment">// need to calculate rowCount before super()
+</span>        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">measure</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptDefault_Text">measureHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_originalHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptDefault_Text">_originalHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measuredHeight</span>;
+        <span class="ActionScriptDefault_Text">_currentPageHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measuredHeight</span>;
+
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">sizeToPage</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">setRowCount</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">oldRowCount</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">measure</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  setActualSize() is overridden to update _originalHeight.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setActualSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">w</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">h</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">percentHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_originalHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">h</span>;
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">percentHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NaN</span>;
+            <span class="ActionScriptDefault_Text">measure</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">h</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measuredHeight</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setActualSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">w</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">h</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sizeToPage</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">explicitHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptDefault_Text">explicitHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NaN</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Overridden methods: ListBase
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Overridden configureScrollBars to disable autoScrollUp.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">configureScrollBars</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Methods
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>
+    <span class="ActionScriptASDoc">/**
+     *  Puts the next set of data rows in view;
+     *  that is, it sets the PrintAdvancedDataGrid &lt;code&gt;verticalScrollPosition&lt;/code&gt;
+     *  property to equal &lt;code&gt;verticalScrollPosition&lt;/code&gt; + (number of scrollable rows).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">nextPage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptDefault_Text">previousPageRowCount</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">rowCount</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">lockedRowCount</span>;
+        
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">rowCount</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">lockedRowCount</span>;
+            <span class="ActionScriptComment">// TODO: can this be avoided?
+</span>            <span class="ActionScriptDefault_Text">itemsSizeChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptASDoc">/**
+     *  Puts the previous set of data rows in view;
+     *  that is, it sets the PrintAdvancedDataGrid &lt;code&gt;verticalScrollPosition&lt;/code&gt;
+     *  property to equal &lt;code&gt;verticalScrollPosition&lt;/code&gt; - (number of rows in the previous page).
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">previousPage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">previousPageRowCount</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  ListBase.measure() does'nt calculate measuredHeight in required way
+     *  so have to add the code here.
+     */</span>
+    <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">measureHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span> <span class="ActionScriptDefault_Text">dataProvider</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&gt;</span> 0 
+            <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">dataProvider</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">setRowCount</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">measuredHeight</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">measuredMinHeight</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">return</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">o</span>:<span class="ActionScriptDefault_Text">EdgeMetrics</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">viewMetrics</span>;
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rc</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">explicitRowCount</span> <span class="ActionScriptOperator">&lt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">rowCount</span> : <span class="ActionScriptDefault_Text">explicitRowCount</span>;
+
+        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">maxHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">isNaN</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_originalHeight</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptOperator">-</span>1 
+                                : <span class="ActionScriptDefault_Text">_originalHeight</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span>;
+
+        <span class="ActionScriptDefault_Text">measuredHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measureHeightOfItemsUptoMaxHeight</span><span class="ActionScriptBracket/Brace">(</span>
+            <span class="ActionScriptOperator">-</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rc</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">maxHeight</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span>;
+
+        <span class="ActionScriptDefault_Text">measuredMinHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">measureHeightOfItemsUptoMaxHeight</span><span class="ActionScriptBracket/Brace">(</span>
+            <span class="ActionScriptOperator">-</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">min</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rc</span><span class="ActionScriptOperator">,</span> 2<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">maxHeight</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">o</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptASDoc">/**
+     *  Moves to the first page of the PrintAdvancedDataGrid control,
+     *  which corresponds to the first set of visible rows. 
+     *  
+     *  @langversion 3.0
+     *  @playerversion Flash 9
+     *  @playerversion AIR 1.1
+     *  @productversion Flex 3
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">moveToFirstPage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptComment">// move the iterator to the first position
+</span>        <span class="ActionScriptComment">// this is done because when nextPage() is called without
+</span>        <span class="ActionScriptComment">// checking for validNextPage(), listItems becomes empty after the last page
+</span>        <span class="ActionScriptComment">// and the iterator is not seeked to the desired position.
+</span>        <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">seek</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">CursorBookmark</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FIRST</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptDefault_Text">verticalScrollPosition</span> <span class="ActionScriptOperator">=</span> 0;
+        
+        <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//  Overridden event handlers: UIComponent
+</span>    <span class="ActionScriptComment">//
+</span>    <span class="ActionScriptComment">//--------------------------------------------------------------------------
+</span>    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Overridden keyDown to disable keyboard functionality.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">keyDownHandler</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span>:<span class="ActionScriptDefault_Text">KeyboardEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+    
+    <span class="ActionScriptASDoc">/**
+     *  @private
+     *  Overridden expandItemHandler to disable animation
+     *  and recalculate the height
+     *  when allowInteraction is false.
+     */</span>
+    <span class="ActionScriptReserved">override</span> <span class="ActionScriptDefault_Text">mx_internal</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">expandItemHandler</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span>:<span class="ActionScriptDefault_Text">AdvancedDataGridEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">animate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>; <span class="ActionScriptComment">// no animation
+</span>            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">expandItemHandler</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">// we have to recalculate the height
+</span>            <span class="ActionScriptDefault_Text">itemsSizeChanged</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        
+            <span class="ActionScriptDefault_Text">invalidateDisplayList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">invalidateProperties</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>
